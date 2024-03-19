@@ -24,7 +24,7 @@ public class PlayerRepo {
 
 
     public void addPlayerUsername(int id, String username){
-        playerList.get(id).setUsername(username);
+        playerList.get(id-1).setUsername(username);
         System.out.println(playerList.get(id));
     }
 
