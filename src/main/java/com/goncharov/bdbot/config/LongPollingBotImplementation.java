@@ -1,8 +1,6 @@
 package com.goncharov.bdbot.config;
 
 
-import com.goncharov.bdbot.exceptions.IdAlreadyUsedException;
-import com.goncharov.bdbot.exceptions.WrongIdException;
 import com.goncharov.bdbot.services.GameService;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -52,12 +50,16 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
 
         if (request.hasMessage() && requestMessage.hasText())
             try {
-                if (requestMessage.getText().equals("/start"))
+                if (requestMessage.getText().equals("/start")) {
                     defaultMsg(response, "Напиши номер с карточки");
-                else {
+                } else if (requestMessage.getText().equals("/game")) {
                     User user = requestMessage.getFrom();
-                    var role = gameService.addUsername(Integer.parseInt(requestMessage.getText()), user.getUserName());
-                    defaultMsg(response, role.toString());
+                    System.out.println(user.getUserName());
+                    defaultMsg(response, gameService.getInfo(user.getUserName()));
+                } else {
+                    User user = requestMessage.getFrom();
+                    defaultMsg(response, gameService
+                            .addUsername(requestMessage.getText(), user.getUserName()));
                 }
             } catch (RuntimeException e) {
                 defaultMsg(response, e.getMessage());

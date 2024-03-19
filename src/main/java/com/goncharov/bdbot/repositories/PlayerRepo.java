@@ -3,36 +3,49 @@ package com.goncharov.bdbot.repositories;
 import com.goncharov.bdbot.models.Player;
 import com.goncharov.bdbot.models.Role;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class PlayerRepo {
     @Autowired
-    private List<Player> playerList;
+    private Map<Integer, Player> players;
 
-    public List<Player> findAll(){
-        return playerList;
+    private Map<Integer, Player> citizens;
+
+    public Map<Integer, Player> findAll(){
+        return players;
     }
 
     public Player findById(int id) {
-        return playerList.get(id);
+        return players.get(id);
+    }
+
+    public Optional<Player> findByUsername(String username){
+        return players.values().stream()
+                .filter(p -> p .getUsername()!= null && p.getUsername().equals(username))
+                .findFirst();
     }
 
 
     public void addPlayerUsername(int id, String username){
-        playerList.get(id-1).setUsername(username);
-        System.out.println(playerList.get(id));
+        Player player = players.get(id);
+        player.setUsername(username);
+        if (player.getRole() == Role.CITIZEN) {
+            citizens.put(id, player);
+        }
+        System.out.println(players.toString());
     }
 
     @PostConstruct
     private void initializeList() {
         int id = 1;
         for (int i = 0; i < 4; i++) {
-            playerList.add(
+            players.put(id,
                     Player.builder()
                             .id(id++)
                             .role(Role.COP)
@@ -40,7 +53,7 @@ public class PlayerRepo {
             );
         }
         for (int i = 0; i < 4; i++) {
-            playerList.add(
+            players.put(id,
                     Player.builder()
                             .id(id++)
                             .role(Role.MAFIA)
@@ -48,7 +61,7 @@ public class PlayerRepo {
             );
         }
         for (int i = 0; i < 12; i++) {
-            playerList.add(
+            players.put(id,
                     Player.builder()
                             .id(id++)
                             .role(Role.CITIZEN)
