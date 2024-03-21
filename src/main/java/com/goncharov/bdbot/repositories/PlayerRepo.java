@@ -6,18 +6,18 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class PlayerRepo {
     @Autowired
     private Map<Integer, Player> players;
 
-    private Map<Integer, Player> citizens;
+    private Map<Integer, String> victims;
 
-    public Map<Integer, Player> findAll(){
+    private Queue<String> citizens;
+
+    public Map<Integer, Player> findAll() {
         return players;
     }
 
@@ -25,26 +25,52 @@ public class PlayerRepo {
         return players.get(id);
     }
 
-    public Optional<Player> findByUsername(String username){
+    public Optional<Player> findByUsername(String username) {
         return players.values().stream()
-                .filter(p -> p .getUsername()!= null && p.getUsername().equals(username))
+                .filter(p -> p.getUsername() != null && p.getUsername().equals(username))
                 .findFirst();
     }
 
+    public String getVictims(int id){
+        return victims.getOrDefault(id, "not found");
+    }
 
-    public void addPlayerUsername(int id, String username){
+
+    public void addPlayerUsername(int id, String username) {
         Player player = players.get(id);
         player.setUsername(username);
         if (player.getRole() == Role.CITIZEN) {
-            citizens.put(id, player);
+            addToCitizens(player);
         }
         System.out.println(players.toString());
+    }
+
+    private void addToCitizens(Player player) {
+        citizens.add(player.getUsername());
+        if (citizens.size() == 12) {
+            setCitizensToMafia();
+        }
+    }
+
+    private void setCitizensToMafia() {
+        var mafiaId = 4;
+        var curList = new ArrayList<String>();
+        while (!citizens.isEmpty()){
+            curList.add(citizens.poll());
+            if (curList.size() == 3){
+                var vicString = new StringBuilder();
+                curList.forEach(s -> vicString.append(s).append("\n"));
+                victims.put(mafiaId, vicString.toString());
+                curList = new ArrayList<String>();
+                mafiaId++;
+            }
+        }
     }
 
     @PostConstruct
     private void initializeList() {
         int id = 1;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             players.put(id,
                     Player.builder()
                             .id(id++)

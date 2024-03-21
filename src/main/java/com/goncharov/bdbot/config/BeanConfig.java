@@ -15,4 +15,8 @@ public class BeanConfig {
     Map<Integer, Player> players() {
         return new HashMap<Integer, Player>();
     }
+    @Bean
+    Map<Integer, Player[]> citizens(){
+        return new HashMap<>();
+    }
 }

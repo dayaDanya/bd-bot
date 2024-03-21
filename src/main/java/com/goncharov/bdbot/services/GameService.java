@@ -88,6 +88,12 @@ public class GameService {
         }
     }
 
+    //todo обработать исключение когда пустая строка и добавить кнопки
+    public String getForMafia(Player player){
+        var victims = playerRepo.getVictims(player.getId());
+        return "Твой список целей на сегодня: " + victims;
+    }
+
     public String fromRoleToString(Role role) {
         if (role == Role.COP) {
             return forCop;
