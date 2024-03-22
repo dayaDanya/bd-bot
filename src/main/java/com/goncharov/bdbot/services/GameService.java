@@ -2,11 +2,13 @@ package com.goncharov.bdbot.services;
 
 
 import com.goncharov.bdbot.exceptions.*;
+import com.goncharov.bdbot.keyboards.MafiaKeyboard;
 import com.goncharov.bdbot.models.Player;
 import com.goncharov.bdbot.models.Role;
 import com.goncharov.bdbot.repositories.PlayerRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,17 @@ public class GameService {
             "24. Переименуй плейлист тусовки на ноутбуке";
     private final PlayerRepo playerRepo;
 
-
+    public InlineKeyboardMarkup getButtons(String username){
+        var cur = playerRepo.findByUsername(username).orElseThrow(UsernameNotFoundException::new);
+        if (cur.getRole() == Role.COP) {
+            return null;
+        } else if (cur.getRole() == Role.MAFIA) {
+            return MafiaKeyboard.mafiaKeyboard();
+        } else if (cur.getRole() == Role.CITIZEN) {
+            return null;
+        }
+        return null;
+    }
     public String getInfo(String username) {
         var cur = playerRepo.findByUsername(username).orElseThrow(UsernameNotFoundException::new);
         if (cur.getRole() == Role.COP) {
@@ -64,6 +76,7 @@ public class GameService {
         }
         return "хм";
     }
+
 
     public String addUsername(String message, String username) {
         int id;
@@ -81,7 +94,7 @@ public class GameService {
                 throw new UsernameAlreadyInUseException();
             else {
                 playerRepo.addPlayerUsername(id, username);
-                return fromRoleToString(playerRepo.findById(id).getRole());
+                return fromRoleToString(username);
             }
         } catch (IndexOutOfBoundsException e) {
             throw new WrongIdException(id);
@@ -97,7 +110,8 @@ public class GameService {
         return "Твой список целей на сегодня: " + victims;
     }
 
-    public String fromRoleToString(Role role) {
+    public String fromRoleToString(String username) {
+        var role = playerRepo.findByUsername(username).get().getRole();
         if (role == Role.COP) {
             return forCop;
         }
