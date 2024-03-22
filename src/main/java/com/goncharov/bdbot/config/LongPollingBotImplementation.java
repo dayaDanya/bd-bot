@@ -27,13 +27,16 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
 
     private final GameService gameService;
 
+    private final MafiaKeyboard mafiaKeyboard;
+
     public LongPollingBotImplementation(
             TelegramBotsApi telegramBotsApi,
             @Value("${telegram-bot.name}") String botUsername,
-            @Value("${telegram-bot.token}") String botToken, GameService gameService) throws TelegramApiException {
+            @Value("${telegram-bot.token}") String botToken, GameService gameService, MafiaKeyboard mafiaKeyboard) throws TelegramApiException {
         this.botUsername = botUsername;
         this.botToken = botToken;
         this.gameService = gameService;
+        this.mafiaKeyboard = mafiaKeyboard;
 
         telegramBotsApi.registerBot(this);
     }
@@ -63,7 +66,7 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
                     User user = requestMessage.getFrom();
                     var responseString = gameService
                             .addUsername(requestMessage.getText(), user.getUserName());
-                    response.setReplyMarkup(MafiaKeyboard.mafiaKeyboard());
+                    response.setReplyMarkup(mafiaKeyboard.basicKeyboard());
                     defaultMsg(response, responseString);
                 }
             } catch (RuntimeException e) {
@@ -84,7 +87,19 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
                 System.out.println(user.getUserName());
                 response.setReplyMarkup(gameService.getButtons(user.getUserName()));
                 defaultMsg(response, gameService.getInfo(user.getUserName()));
+            }  else if (call_data.equals("kill")) {
+            User user = callbackQuery.getFrom();
+            System.out.println(user.getUserName());
+            try {
+
+                response.setReplyMarkup(mafiaKeyboard.toKillKeyboard(user.getUserName()));
+                defaultMsg(response, "Кого ты убил?");
+            } catch (RuntimeException e){
+                defaultMsg(response, "Тебе пока некого убивать");
+
             }
+        }
+
         }
 
     }

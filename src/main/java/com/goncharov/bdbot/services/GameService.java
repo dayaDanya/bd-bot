@@ -3,7 +3,6 @@ package com.goncharov.bdbot.services;
 
 import com.goncharov.bdbot.exceptions.*;
 import com.goncharov.bdbot.keyboards.MafiaKeyboard;
-import com.goncharov.bdbot.models.Player;
 import com.goncharov.bdbot.models.Role;
 import com.goncharov.bdbot.repositories.PlayerRepo;
 import lombok.RequiredArgsConstructor;
@@ -54,12 +53,14 @@ public class GameService {
             "24. Переименуй плейлист тусовки на ноутбуке";
     private final PlayerRepo playerRepo;
 
+    private final MafiaKeyboard mafiaKeyboard;
+
     public InlineKeyboardMarkup getButtons(String username){
         var cur = playerRepo.findByUsername(username).orElseThrow(UsernameNotFoundException::new);
         if (cur.getRole() == Role.COP) {
             return null;
         } else if (cur.getRole() == Role.MAFIA) {
-            return MafiaKeyboard.mafiaKeyboard();
+            return mafiaKeyboard.basicKeyboard();
         } else if (cur.getRole() == Role.CITIZEN) {
             return null;
         }
@@ -109,6 +110,7 @@ public class GameService {
         }
         return "Твой список целей на сегодня: " + victims;
     }
+
 
     public String fromRoleToString(String username) {
         var role = playerRepo.findByUsername(username).get().getRole();

@@ -15,7 +15,6 @@ public class PlayerRepo {
     @Autowired
     private Map<Integer, String> victims;
     @Autowired
-
     private Queue<String> citizens;
 
     public Map<Integer, Player> findAll() {
@@ -52,6 +51,12 @@ public class PlayerRepo {
         if (citizens.size() == 12) {
             setCitizensToMafia();
         }
+    }
+
+    public String[] findVictimsByUsername(String username) throws RuntimeException{
+        var victimsString =  victims.get(findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Тебе пока, что некого убивать")).getId());
+        return victimsString.split("\n");
     }
 
     private void setCitizensToMafia() {
