@@ -4,10 +4,7 @@ import com.goncharov.bdbot.models.Player;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 public class BeanConfig {
@@ -16,7 +13,11 @@ public class BeanConfig {
         return new HashMap<Integer, Player>();
     }
     @Bean
-    Map<Integer, Player[]> citizens(){
-        return new HashMap<>();
+    Map<Integer, String> victims(){
+        return new HashMap<Integer, String>();
+    }
+    @Bean
+    Queue<String> citizens(){
+        return new LinkedList<String>();
     }
 }

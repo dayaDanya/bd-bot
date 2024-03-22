@@ -12,8 +12,9 @@ import java.util.*;
 public class PlayerRepo {
     @Autowired
     private Map<Integer, Player> players;
-
+    @Autowired
     private Map<Integer, String> victims;
+    @Autowired
 
     private Queue<String> citizens;
 
@@ -46,6 +47,7 @@ public class PlayerRepo {
     }
 
     private void addToCitizens(Player player) {
+        System.out.println("Добавили в горожане " + player.getId());
         citizens.add(player.getUsername());
         if (citizens.size() == 12) {
             setCitizensToMafia();
@@ -61,6 +63,7 @@ public class PlayerRepo {
                 var vicString = new StringBuilder();
                 curList.forEach(s -> vicString.append(s).append("\n"));
                 victims.put(mafiaId, vicString.toString());
+                System.out.println("Выдали мафии");
                 curList = new ArrayList<String>();
                 mafiaId++;
             }

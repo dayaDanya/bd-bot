@@ -58,7 +58,7 @@ public class GameService {
         if (cur.getRole() == Role.COP) {
             return tasks;
         } else if (cur.getRole() == Role.MAFIA) {
-            return forMafia;
+            return getForMafia(username);
         } else if (cur.getRole() == Role.CITIZEN) {
             return tasks;
         }
@@ -88,9 +88,12 @@ public class GameService {
         }
     }
 
-    //todo обработать исключение когда пустая строка и добавить кнопки
-    public String getForMafia(Player player){
-        var victims = playerRepo.getVictims(player.getId());
+    public String getForMafia(String username){
+        var curMafia = playerRepo.findByUsername(username);
+        var victims = playerRepo.getVictims(curMafia.get().getId());
+        if (victims.equals("not found")){
+            return "В городе недостаточно жителей, попробуй позже";
+        }
         return "Твой список целей на сегодня: " + victims;
     }
 
