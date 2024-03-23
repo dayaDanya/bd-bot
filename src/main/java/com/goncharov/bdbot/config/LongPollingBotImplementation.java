@@ -58,7 +58,7 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
                 if (requestMessage.getText().equals("/start")) {
                     defaultMsg(response, "Напиши номер с карточки");
                 } else if (requestMessage.getText().equals("/game")) {
-                     User user = requestMessage.getFrom();
+                    User user = requestMessage.getFrom();
                     System.out.println(user.getUserName());
                     response.setReplyMarkup(gameService.getButtons(user.getUserName()));
                     defaultMsg(response, gameService.getInfo(user.getUserName()));
@@ -75,30 +75,33 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
         } else if (request.hasCallbackQuery()) {
             var callbackQuery = request.getCallbackQuery();
             response.setChatId(callbackQuery.getMessage().getChatId());
-            String call_data = request.getCallbackQuery().getData();
-            if (call_data.equals("role")) {
-                //todo в юзер записывается сам бот, падает исключение
-                User user = callbackQuery.getFrom();
-                System.out.println(user.getUserName());
-                response.setReplyMarkup(gameService.getButtons(user.getUserName()));
-                defaultMsg(response, gameService.fromRoleToString(user.getUserName()));
-            } else if (call_data.equals("victims")) {
-                User user = callbackQuery.getFrom();
-                System.out.println(user.getUserName());
-                response.setReplyMarkup(gameService.getButtons(user.getUserName()));
-                defaultMsg(response, gameService.getInfo(user.getUserName()));
-            }  else if (call_data.equals("kill")) {
-            User user = callbackQuery.getFrom();
-            System.out.println(user.getUserName());
+            String call_data = callbackQuery.getData();
             try {
-
-                response.setReplyMarkup(mafiaKeyboard.toKillKeyboard(user.getUserName()));
-                defaultMsg(response, "Кого ты убил?");
-            } catch (RuntimeException e){
-                defaultMsg(response, "Тебе пока некого убивать");
-
+                if (call_data.equals("role")) {
+                    User user = callbackQuery.getFrom();
+                    System.out.println(user.getUserName());
+                    response.setReplyMarkup(gameService.getButtons(user.getUserName()));
+                    defaultMsg(response, gameService.fromRoleToString(user.getUserName()));
+                } else if (call_data.equals("victims")) {
+                    User user = callbackQuery.getFrom();
+                    System.out.println(user.getUserName());
+                    response.setReplyMarkup(gameService.getButtons(user.getUserName()));
+                    defaultMsg(response, gameService.getInfo(user.getUserName()));
+                } else if (call_data.equals("kill")) {
+                    User user = callbackQuery.getFrom();
+                    System.out.println(user.getUserName());
+                    response.setReplyMarkup(mafiaKeyboard.toKillKeyboard(user.getUserName()));
+                    defaultMsg(response, "Кого ты убил?");
+                } else if(call_data.contains("username")){
+                    User user = callbackQuery.getFrom();
+                    var usernameToKill = call_data.substring(9);
+                    gameService.killCitizen(user.getUserName(), usernameToKill);
+                    response.setReplyMarkup(mafiaKeyboard.basicKeyboard());
+                    defaultMsg(response, "Минус один...");
+                }
+            } catch (RuntimeException e) {
+                defaultMsg(response, e.getMessage());
             }
-        }
 
         }
 

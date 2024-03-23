@@ -61,17 +61,17 @@ public class MafiaKeyboard {
         // Создаем кнопки
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        for (int i = 0; i < victims.length; i++){
+        for (int i = 0; i < victims.size(); i++){
         // Кнопка с юзернеймом
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
         var button = new InlineKeyboardButton();
-        button.setText(victims[i]);
-        button.setCallbackData("nickname" + i);
+        button.setText(victims.get(i));
+        button.setCallbackData("username:" + victims.get(i));
         rowInline.add(button);
         rowsInline.add(rowInline);
     }
         markupInline.setKeyboard(rowsInline);
-        //todo доделать удаление юзеров при убийстве на всех слоях
+        //todo доделать что при убийстве юзера ему плохо
         //todo добавить выдачу юзеров другим мафиям при выбывании мафии
         //todo сделать кнопки всем остальным
         return markupInline;

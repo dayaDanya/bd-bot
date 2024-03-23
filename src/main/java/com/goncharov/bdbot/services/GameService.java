@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+import java.util.ArrayList;
+
 @Service
 @RequiredArgsConstructor
 public class GameService {
@@ -55,7 +57,7 @@ public class GameService {
 
     private final MafiaKeyboard mafiaKeyboard;
 
-    public InlineKeyboardMarkup getButtons(String username){
+    public InlineKeyboardMarkup getButtons(String username) {
         var cur = playerRepo.findByUsername(username).orElseThrow(UsernameNotFoundException::new);
         if (cur.getRole() == Role.COP) {
             return null;
@@ -66,6 +68,7 @@ public class GameService {
         }
         return null;
     }
+
     public String getInfo(String username) {
         var cur = playerRepo.findByUsername(username).orElseThrow(UsernameNotFoundException::new);
         if (cur.getRole() == Role.COP) {
@@ -82,16 +85,18 @@ public class GameService {
     public String addUsername(String message, String username) {
         int id;
         try {
-             id = Integer.parseInt(message);
-        } catch (NumberFormatException e){
+            id = Integer.parseInt(message);
+        } catch (NumberFormatException e) {
             throw new WrongMessageException(message);
         }
         var playerList = playerRepo.findAll();
         try {
             var player = playerList.get(id);
-            if (player.getUsername() != null) {
+            if (player == null) {
+                throw new WrongIdException(id);
+            } else if (player.getUsername() != null) {
                 throw new IdAlreadyUsedException(id);
-            } else if(playerRepo.findByUsername(username).isPresent())
+            } else if (playerRepo.findByUsername(username).isPresent())
                 throw new UsernameAlreadyInUseException();
             else {
                 playerRepo.addPlayerUsername(id, username);
@@ -102,13 +107,23 @@ public class GameService {
         }
     }
 
-    public String getForMafia(String username){
+    public String getForMafia(String username) {
         var curMafia = playerRepo.findByUsername(username);
         var victims = playerRepo.getVictims(curMafia.get().getId());
-        if (victims.equals("not found")){
-            return "В городе недостаточно жителей, попробуй позже";
+        if (victims.isEmpty()) {
+            return "Убивать некого...";
         }
-        return "Твой список целей на сегодня: " + victims;
+        var vicStringBuilder = new StringBuilder();
+        victims.forEach(s -> vicStringBuilder.append(s).append("\n"));
+        return "Твой список целей на сегодня: " + vicStringBuilder.toString();
+    }
+
+    public void killCitizen(String mafiaUsername, String username) {
+        var playerToKill = playerRepo.findByUsername(username).get();
+        var mafia = playerRepo.findByUsername(mafiaUsername);
+        playerRepo.deleteFromPlayers(playerToKill.getId());
+        playerRepo.deleteFromCitizens(playerToKill.getUsername());
+        playerRepo.deleteFromVictims(mafia.get().getId(), playerToKill.getUsername());
     }
 
 

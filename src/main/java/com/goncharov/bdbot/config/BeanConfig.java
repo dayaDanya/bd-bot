@@ -13,8 +13,8 @@ public class BeanConfig {
         return new HashMap<Integer, Player>();
     }
     @Bean
-    Map<Integer, String> victims(){
-        return new HashMap<Integer, String>();
+    Map<Integer, List<String>> victims(){
+        return new HashMap<Integer, List<String>>();
     }
     @Bean
     Queue<String> citizens(){

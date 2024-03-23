@@ -13,7 +13,7 @@ public class PlayerRepo {
     @Autowired
     private Map<Integer, Player> players;
     @Autowired
-    private Map<Integer, String> victims;
+    private Map<Integer, List<String>> victims;
     @Autowired
     private Queue<String> citizens;
 
@@ -25,14 +25,25 @@ public class PlayerRepo {
         return players.get(id);
     }
 
+    public void deleteFromPlayers(int id){
+        players.remove(id);
+    }
+    public void deleteFromCitizens(String username){
+        citizens.remove(username);
+    }
+    public void deleteFromVictims(int mafiaId, String username){
+        var curVictims =victims.get(mafiaId);
+        curVictims.remove(username);
+    }
+
     public Optional<Player> findByUsername(String username) {
         return players.values().stream()
                 .filter(p -> p.getUsername() != null && p.getUsername().equals(username))
                 .findFirst();
     }
 
-    public String getVictims(int id){
-        return victims.getOrDefault(id, "not found");
+    public List<String> getVictims(int id){
+        return victims.getOrDefault(id, Collections.emptyList());
     }
 
 
@@ -48,26 +59,24 @@ public class PlayerRepo {
     private void addToCitizens(Player player) {
         System.out.println("Добавили в горожане " + player.getId());
         citizens.add(player.getUsername());
-        if (citizens.size() == 12) {
+        if (citizens.size() == 1) {
             setCitizensToMafia();
         }
     }
-
-    public String[] findVictimsByUsername(String username) throws RuntimeException{
-        var victimsString =  victims.get(findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Тебе пока, что некого убивать")).getId());
-        return victimsString.split("\n");
+    //todo здесь
+    public List<String> findVictimsByUsername(String username) throws RuntimeException{
+        return victims.get(findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Тебе пока что некого убивать")).getId());
     }
-
+    //todo здесь
     private void setCitizensToMafia() {
         var mafiaId = 4;
         var curList = new ArrayList<String>();
         while (!citizens.isEmpty()){
             curList.add(citizens.poll());
-            if (curList.size() == 3){
-                var vicString = new StringBuilder();
-                curList.forEach(s -> vicString.append(s).append("\n"));
-                victims.put(mafiaId, vicString.toString());
+            if (curList.size() == 1){
+
+                victims.put(mafiaId, curList);
                 System.out.println("Выдали мафии");
                 curList = new ArrayList<String>();
                 mafiaId++;
@@ -78,7 +87,7 @@ public class PlayerRepo {
     @PostConstruct
     private void initializeList() {
         int id = 1;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             players.put(id,
                     Player.builder()
                             .id(id++)
