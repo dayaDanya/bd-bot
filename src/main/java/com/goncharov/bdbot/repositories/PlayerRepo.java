@@ -25,14 +25,16 @@ public class PlayerRepo {
         return players.get(id);
     }
 
-    public void deleteFromPlayers(int id){
+    public void deleteFromPlayers(int id) {
         players.remove(id);
     }
-    public void deleteFromCitizens(String username){
+
+    public void deleteFromCitizens(String username) {
         citizens.remove(username);
     }
-    public void deleteFromVictims(int mafiaId, String username){
-        var curVictims =victims.get(mafiaId);
+
+    public void deleteFromVictims(int mafiaId, String username) {
+        var curVictims = victims.get(mafiaId);
         curVictims.remove(username);
     }
 
@@ -42,7 +44,7 @@ public class PlayerRepo {
                 .findFirst();
     }
 
-    public List<String> getVictims(int id){
+    public List<String> getVictims(int id) {
         return victims.getOrDefault(id, Collections.emptyList());
     }
 
@@ -63,19 +65,21 @@ public class PlayerRepo {
             setCitizensToMafia();
         }
     }
+
     //todo здесь
-    public List<String> findVictimsByUsername(String username) throws RuntimeException{
+    public List<String> findVictimsByUsername(String username) throws RuntimeException {
         return victims.get(findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Тебе пока что некого убивать")).getId());
     }
+
     //todo здесь
     private void setCitizensToMafia() {
-        var mafiaId = 4;
+        var mafiaId = 1;
         var curList = new ArrayList<String>();
-        while (!citizens.isEmpty()){
+        while (!citizens.isEmpty()) {
             curList.add(citizens.poll());
-            if (curList.size() == 1){
-
+            if (curList.size() == 1) {
+                //todo проинициализировать все списки
                 victims.put(mafiaId, curList);
                 System.out.println("Выдали мафии");
                 curList = new ArrayList<String>();
@@ -91,7 +95,7 @@ public class PlayerRepo {
             players.put(id,
                     Player.builder()
                             .id(id++)
-                            .role(Role.COP)
+                            .role(Role.MAFIA)
                             .build()
             );
         }
@@ -99,7 +103,7 @@ public class PlayerRepo {
             players.put(id,
                     Player.builder()
                             .id(id++)
-                            .role(Role.MAFIA)
+                            .role(Role.COP)
                             .build()
             );
         }
@@ -111,6 +115,24 @@ public class PlayerRepo {
                             .build()
             );
         }
+        for (int i = 1; i <=4; i++){
+            victims.put(i, new ArrayList<>());
+        }
         System.out.println(id);
     }
+
+    public void transferVictims(int id) {
+        //удалить из всех игроков, перераспределить
+        var killedMafiaVictims = victims.get(id);
+        for(var cur : killedMafiaVictims) {
+            Integer keyOfShortestList = victims.entrySet().stream()
+                    .min(Comparator.comparingInt(entry -> entry.getValue().size()))
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            victims.get(keyOfShortestList).add(cur);
+            killedMafiaVictims.remove(cur);
+        }
+        victims.remove(id);
+    }
+
 }

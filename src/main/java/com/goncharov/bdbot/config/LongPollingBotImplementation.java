@@ -79,17 +79,14 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
             try {
                 if (call_data.equals("role")) {
                     User user = callbackQuery.getFrom();
-                    System.out.println(user.getUserName());
                     response.setReplyMarkup(gameService.getButtons(user.getUserName()));
                     defaultMsg(response, gameService.fromRoleToString(user.getUserName()));
                 } else if (call_data.equals("victims")) {
                     User user = callbackQuery.getFrom();
-                    System.out.println(user.getUserName());
                     response.setReplyMarkup(gameService.getButtons(user.getUserName()));
                     defaultMsg(response, gameService.getInfo(user.getUserName()));
                 } else if (call_data.equals("kill")) {
                     User user = callbackQuery.getFrom();
-                    System.out.println(user.getUserName());
                     response.setReplyMarkup(mafiaKeyboard.toKillKeyboard(user.getUserName()));
                     defaultMsg(response, "Кого ты убил?");
                 } else if(call_data.contains("username")){
@@ -98,6 +95,16 @@ public class LongPollingBotImplementation extends TelegramLongPollingBot {
                     gameService.killCitizen(user.getUserName(), usernameToKill);
                     response.setReplyMarkup(mafiaKeyboard.basicKeyboard());
                     defaultMsg(response, "Минус один...");
+                } else if(call_data.equals("caught")){
+                    response.setReplyMarkup(mafiaKeyboard.beingCaughtKeyboard());
+                    defaultMsg(response, "Тебя точно поймали?");
+                } else if(call_data.equals("no")){
+                    response.setReplyMarkup(mafiaKeyboard.basicKeyboard());
+                    defaultMsg(response, "Ну ладно))\nПродолжай играть");
+                } else if (call_data.equals("yes")){
+                    User user = callbackQuery.getFrom();
+                    gameService.catchMafia(user.getUserName());
+                    defaultMsg(response, "К сожалению для тебя игра окончена ;(");
                 }
             } catch (RuntimeException e) {
                 defaultMsg(response, e.getMessage());

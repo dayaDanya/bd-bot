@@ -126,6 +126,12 @@ public class GameService {
         playerRepo.deleteFromVictims(mafia.get().getId(), playerToKill.getUsername());
     }
 
+    public void catchMafia(String username){
+        var mafia = playerRepo.findByUsername(username);
+        playerRepo.transferVictims(mafia.get().getId());
+        playerRepo.deleteFromPlayers(mafia.get().getId());
+    }
+
 
     public String fromRoleToString(String username) {
         var role = playerRepo.findByUsername(username).get().getRole();
