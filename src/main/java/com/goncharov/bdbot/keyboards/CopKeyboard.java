@@ -1,7 +1,5 @@
 package com.goncharov.bdbot.keyboards;
 
-import com.goncharov.bdbot.repositories.PlayerRepo;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -9,10 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.ArrayList;
 import java.util.List;
 @Component
-@RequiredArgsConstructor
-public class CitizenKeyboard {
-    private final PlayerRepo playerRepo;
-
+public class CopKeyboard {
     public InlineKeyboardMarkup basicKeyboard(){
         // Создаем кнопки
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
@@ -30,7 +25,7 @@ public class CitizenKeyboard {
         List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
         var button2 = new InlineKeyboardButton();
         button2.setText("Список заданий");
-        button2.setCallbackData("tasks");
+        button2.setCallbackData("tasksc");
         rowInline2.add(button2);
         rowsInline.add(rowInline2);
 

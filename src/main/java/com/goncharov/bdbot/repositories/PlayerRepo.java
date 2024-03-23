@@ -61,7 +61,7 @@ public class PlayerRepo {
     private void addToCitizens(Player player) {
         System.out.println("Добавили в горожане " + player.getId());
         citizens.add(player.getUsername());
-        if (citizens.size() == 1) {
+        if (citizens.size() == 10) {
             setCitizensToMafia();
         }
     }
@@ -77,14 +77,20 @@ public class PlayerRepo {
         var mafiaId = 1;
         var curList = new ArrayList<String>();
         while (!citizens.isEmpty()) {
-            curList.add(citizens.poll());
-            if (curList.size() == 1) {
-                //todo проинициализировать все списки
-                victims.put(mafiaId, curList);
-                System.out.println("Выдали мафии");
-                curList = new ArrayList<String>();
-                mafiaId++;
+            victims.get(mafiaId).add(citizens.poll());
+            mafiaId++;
+            if (mafiaId >= 4){
+                mafiaId = 1;
             }
+
+//            curList.add(citizens.poll());
+//            if (curList.size() == 3 || curList.size() == 2) {
+//                //todo проинициализировать все списки
+//                victims.put(mafiaId, curList);
+//                System.out.println("Выдали мафии");
+//                curList = new ArrayList<String>();
+//                mafiaId++;
+//            }
         }
     }
 
@@ -107,7 +113,7 @@ public class PlayerRepo {
                             .build()
             );
         }
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 10; i++) {
             players.put(id,
                     Player.builder()
                             .id(id++)
@@ -122,6 +128,7 @@ public class PlayerRepo {
     }
 
     public void transferVictims(int id) {
+        System.out.println("мы трансферим жертв");
         //удалить из всех игроков, перераспределить
         var killedMafiaVictims = victims.get(id);
         for(var cur : killedMafiaVictims) {
