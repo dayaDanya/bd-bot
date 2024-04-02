@@ -79,7 +79,7 @@ public class PlayerRepo {
         while (!citizens.isEmpty()) {
             victims.get(mafiaId).add(citizens.poll());
             mafiaId++;
-            if (mafiaId >= 4){
+            if (mafiaId > 4){
                 mafiaId = 1;
             }
 
